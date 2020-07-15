@@ -1,11 +1,13 @@
 eel = {
-    _host: window.location.origin,
+    // _host: window.location.origin,
+    _host: 'http://localhost:8000',
 
     set_host: function (hostname) {
         eel._host = hostname
     },
 
     expose: function(f, name) {
+        console.log('Call expose js function');
         if(name === undefined){
             name = f.toString();
             let i = 'function '.length, j = name.indexOf('(');
@@ -13,6 +15,7 @@ eel = {
         }
 
         eel._exposed_functions[name] = f;
+        console.log( eel._exposed_functions );
     },
 
     guid: function() {
@@ -124,6 +127,9 @@ eel = {
                     let call = eel._mock_queue.shift();
                     eel._websocket.send(eel._toJSON(call));
                 }
+                // Call eel add javascript functions
+                // Need export js functions to Eel
+                eel._init_js_function();
             };
 
             eel._websocket.onmessage = function (e) {
@@ -145,6 +151,12 @@ eel = {
 
             };
         });
+    },
+
+    _init_js_function: function(){
+        console.log( eel._exposed_functions );
+        let function_names = Object.keys( eel._exposed_functions );
+        eel._websocket.send(eel._toJSON({'init_js':'init_js', 'value':JSON.stringify(function_names)}));
     }
 }
 

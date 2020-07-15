@@ -108,7 +108,9 @@ def init(path, allowed_extensions=['.js', '.html', '.txt', '.htm',
                 pass    # Malformed file probably
 
     _js_functions = list(js_functions)
+    print(_js_functions)
     for js_function in _js_functions:
+        print(js_function)
         _mock_js_function(js_function)
 
     _js_result_timeout = js_result_timeout
@@ -264,6 +266,15 @@ def _process_message(message, ws):
             callback(message['value'])
         else:
             _call_return_values[call_id] = message['value']
+    elif 'init_js' in message:
+        # add js function dynamic from
+        js_function_names = jsn.loads( message['value'] );
+        print('Init js functions', js_function_names)
+
+        for js_function in js_function_names:
+            _mock_js_function(js_function)
+            _import_js_function(js_function)
+
     else:
         print('Invalid message received: ', message)
 
